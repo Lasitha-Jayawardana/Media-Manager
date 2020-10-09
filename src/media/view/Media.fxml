@@ -8,8 +8,11 @@
 <?import javafx.scene.layout.*?>
 
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="media.view.MediaController">
-   <top>
-      <MediaView fx:id="mediaView" fitHeight="500.0" fitWidth="700.0" BorderPane.alignment="CENTER" />
-   </top>
-</BorderPane>
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1000.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="media.view.MediaController">
+   <children>
+      <MediaView fx:id="mediaView" fitHeight="400.0" fitWidth="600.0" layoutX="24.0" layoutY="24.0" />
+      <ListView fx:id="mediaListView" layoutX="824.0" layoutY="14.0" prefHeight="410.0" prefWidth="439.0" />
+      <ListView fx:id="selectedListView" layoutX="44.0" layoutY="472.0" prefHeight="488.0" prefWidth="419.0" />
+      <ListView fx:id="deletedListView" layoutX="532.0" layoutY="478.0" prefHeight="477.0" prefWidth="400.0" />
+   </children>
+</Pane>

@@ -15,14 +15,21 @@ import javafx.beans.property.StringProperty;
  *
  * @author Lasitha
  */
-public class Media {
-    private final StringProperty name;
-    private final StringProperty path;
+public class MediaItem {
+    private String name;
+    private String path;
     
    
-    public Media(String name, String path) {
-        this.name = new SimpleStringProperty(name);
-        this.path = new SimpleStringProperty(path);
+    public MediaItem(String name, String path) {
+        this.name = name;
+        this.path = path;
 
          }
+     public String getname() {
+        return name;
+    }
+
+    public String getpath() {
+        return path;
+    }
 }
