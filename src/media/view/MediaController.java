@@ -10,9 +10,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
- import java.lang.Object;
+import java.lang.Object;
 import org.apache.commons.io.FileUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,7 +55,9 @@ public class MediaController implements Initializable {
 
     public MediaPlayer mediaPlayer;
     // private ObservableList<MediaPlayer> playerList;
-    public  Media media;
+    public Media media;
+    public File batFile;
+    private PrintWriter writer;
     public File mediaFile;
     private ObservableList<MediaItem> mediaList;
     private ObservableList<MediaItem> selectedList;
@@ -103,6 +106,12 @@ public class MediaController implements Initializable {
             }
 
         });
+        //execute while exiting program
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            public void run() {
+                runBat(); // 
+            }
+        }));
 
         mediaList = FXCollections.observableArrayList();
         //playerList = FXCollections.observableArrayList();
@@ -177,18 +186,18 @@ public class MediaController implements Initializable {
         if (item != null) {
             deletedList.add(0, item);
             mediaList.remove(item);
-if (mediaPlayer != null) {
-mediaPlayer.stop();
-      
-            mediaPlayer.dispose();
-}  
-              mediaPlayer = null;
-              media= null;
-mediaFile=null;
-           // Media media = new Media(new File(mediaList.get(0).getpath()).toURI().toString());
-          mediaFile = new File(mediaList.get(0).getpath());
-           media = new Media(mediaFile.toURI().toString());
-         
+            if (mediaPlayer != null) {
+                mediaPlayer.stop();
+
+                mediaPlayer.dispose();
+            }
+            mediaPlayer = null;
+            media = null;
+            mediaFile = null;
+            // Media media = new Media(new File(mediaList.get(0).getpath()).toURI().toString());
+            mediaFile = new File(mediaList.get(0).getpath());
+            media = new Media(mediaFile.toURI().toString());
+
             play();
         }
 
@@ -201,18 +210,18 @@ mediaFile=null;
         if (item != null) {
             selectedList.add(0, item);
             mediaList.remove(item);
-if (mediaPlayer != null) {
-mediaPlayer.stop();
+            if (mediaPlayer != null) {
+                mediaPlayer.stop();
 
-            mediaPlayer.dispose();
-}
-              mediaPlayer = null;
-              media= null;
-          mediaFile=null;
-           // Media media = new Media(new File(mediaList.get(0).getpath()).toURI().toString());
-          mediaFile = new File(mediaList.get(0).getpath());
-           media = new Media(mediaFile.toURI().toString());
-     
+                mediaPlayer.dispose();
+            }
+            mediaPlayer = null;
+            media = null;
+            mediaFile = null;
+            // Media media = new Media(new File(mediaList.get(0).getpath()).toURI().toString());
+            mediaFile = new File(mediaList.get(0).getpath());
+            media = new Media(mediaFile.toURI().toString());
+
             play();
         }
     }
@@ -277,10 +286,10 @@ mediaPlayer.stop();
                 });
 
             }
-            
-          mediaFile = new File(mediaList.get(0).getpath());
-           media = new Media(mediaFile.toURI().toString());
-     
+
+            mediaFile = new File(mediaList.get(0).getpath());
+            media = new Media(mediaFile.toURI().toString());
+
             play();
         }
     }
@@ -399,10 +408,9 @@ mediaPlayer.stop();
     private void play() {
         if (mediaPlayer != null) {
 
-
             mediaPlayer.dispose();
-}
- 
+        }
+
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setAutoPlay(true);
         mediaView.setMediaPlayer(mediaPlayer);
@@ -422,30 +430,46 @@ mediaPlayer.stop();
 
         });*/
 
-         
     }
 
     public void analys() {
-if (mediaPlayer != null) {
-mediaPlayer.stop();
+        System.gc();
+
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
 
             mediaPlayer.dispose();
-}
-              mediaPlayer = null;
-              media= null;
-              mediaView=null;
-      File f = new File(destinationPath + "\\Deleted");
-        if (!f.exists()){
+        }
+        mediaPlayer = null;
+        media = null;
+        mediaView = null;
+        File f = new File(destinationPath + "\\Deleted");
+        if (!f.exists()) {
             f.mkdir();
-       }
+        }
         f = new File(destinationPath + "\\Selected");
-       if (!f.exists()){
+        if (!f.exists()) {
             f.mkdir();
-       }
-      
-        analysDeletedList();
-        analysSelectedList();
+        }
+        batFile = new File("run.bat");
 
+        try {
+            batFile.createNewFile();
+            writer = new PrintWriter(batFile, "UTF-8");
+
+            writer.println("echo Script to delete file");
+            writer.println("del \"" + "D:\\My Project\\Java\\MediaManager\\New folder\\New Text Document.txt" + "\" /s /f /q\n");
+            writer.println("timeout 10");
+
+            analysDeletedList();
+            analysSelectedList();
+            writer.println("timeout 10");
+            writer.println("del \"%~f0\" & exit");
+
+            writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(MediaController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void analysDeletedList() {
@@ -483,10 +507,10 @@ mediaPlayer.stop();
 
     public void analysUnsupportedList() {
         File f = new File(destinationPath + "\\Unsupported");
-       if (!f.exists()){
+        if (!f.exists()) {
             f.mkdir();
-       }
-       
+        }
+
         String desPath = destinationPath + "\\Unsupported";
         ObservableList<MediaItem> tempList;
         tempList = FXCollections.observableArrayList();
@@ -506,51 +530,48 @@ mediaPlayer.stop();
         desPath = desPath + "\\";
 
         File f = new File(path);
-        if (path.equals(desPath + f.getName())){
+        if (path.equals(desPath + f.getName())) {
             return true;
         }
-         File fileTo = new File(desPath );
+        File fileTo = new File(desPath);
         try {
-            
-            FileUtils.copyFileToDirectory(f,fileTo,true);
+
+            FileUtils.copyFileToDirectory(f, fileTo, true);
             FileUtils.forceDelete(f);
-                    return true;
-           
-           /*  Path p = Files.copy(f.toPath(),fileTo.toPath() , REPLACE_EXISTING);
-           if (p != null){
-            
-            }else{
-                     return false;
-            }*/
-            /*if (f.renameTo(new File(desPath + f.getName()))) {
-            
             return true;
-            } else {
+
+        } catch (IOException ex) {
+            writer.println("del \"" + f.getPath() + "\" /s /f /q\n");
+
             return false;
-            }
-        */      } catch (IOException ex) {
-            try {
-                FileUtils.forceDeleteOnExit(f);
-                Logger.getLogger(MediaController.class.getName()).log(Level.SEVERE, null, ex); 
-              return  true;
-            } catch (IOException ex1) {
-                Logger.getLogger(MediaController.class.getName()).log(Level.SEVERE, null, ex1);
-             return false; 
-            }
+
         }
-  
+
     }
-    public void clearDeletedList(){
+
+    public void clearDeletedList() {
         deletedList.clear();
     }
-      public void clearSelectedList(){
+
+    public void clearSelectedList() {
         selectedList.clear();
     }
-        public void clearUnsupportedList(){
+
+    public void clearUnsupportedList() {
         unsupportedList.clear();
+        runBat();
     }
-        public void clearMediaList(){
+
+    public void clearMediaList() {
         mediaList.clear();
+    }
+
+    private void runBat() {
+        try {
+            Runtime.getRuntime().exec("cmd /c start " + batFile.getPath());
+        } catch (IOException ex) {
+            Logger.getLogger(MediaController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
 /*
@@ -565,4 +586,4 @@ put in initialize.......
                 }
             }
         });
-*/
+ */
