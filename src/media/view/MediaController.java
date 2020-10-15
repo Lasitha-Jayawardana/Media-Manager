@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Observable;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -112,9 +113,18 @@ public class MediaController implements Initializable {
                 runBat(); // 
             }
         }));
-
+        //seek set with slider
+/*mediaSlider.valueProperty().addListener((Observable) -> {
+            if (mediaSlider.isValueChanging()) {
+                if (mediaPlayer != null) {
+                    double durasi = mediaPlayer.getMedia().getDuration().toMillis();
+                    durasi = durasi * (mediaSlider.getValue() / 100);
+                    mediaPlayer.seek(Duration.millis(durasi));
+                }
+            }
+        });*/
         mediaList = FXCollections.observableArrayList();
-        //playerList = FXCollections.observableArrayList();
+       
         deletedList = FXCollections.observableArrayList();
         selectedList = FXCollections.observableArrayList();
         unsupportedList = FXCollections.observableArrayList();
@@ -414,7 +424,7 @@ public class MediaController implements Initializable {
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setAutoPlay(true);
         mediaView.setMediaPlayer(mediaPlayer);
-        /*mediaPlayer.setOnReady(() -> {
+        mediaPlayer.setOnReady(() -> {
             //System.out.println("Duration: "+ mediaPlayer.getTotalDuration().toSeconds());
             mediaSlider.setMin(0.0);
             mediaSlider.setValue(0.0);
@@ -428,7 +438,7 @@ public class MediaController implements Initializable {
 
             });
 
-        });*/
+        });
 
     }
 
@@ -458,12 +468,12 @@ public class MediaController implements Initializable {
             writer = new PrintWriter(batFile, "UTF-8");
 
             writer.println("echo Script to delete file");
-            writer.println("del \"" + "D:\\My Project\\Java\\MediaManager\\New folder\\New Text Document.txt" + "\" /s /f /q\n");
+            //writer.println("del \"" + "D:\\My Project\\Java\\MediaManager\\New folder\\New Text Document.txt" + "\" /s /f /q\n");
             writer.println("timeout 10");
 
             analysDeletedList();
             analysSelectedList();
-            writer.println("timeout 10");
+            //writer.println("timeout 10");
             writer.println("del \"%~f0\" & exit");
 
             writer.close();
@@ -568,22 +578,9 @@ public class MediaController implements Initializable {
 
     private void runBat() {
         try {
-            Runtime.getRuntime().exec("cmd /c start " + batFile.getPath());
+            Runtime.getRuntime().exec("cmd /c start /min " + batFile.getPath());
         } catch (IOException ex) {
             Logger.getLogger(MediaController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
-/*
-put in initialize.......
- // Rubah posisi mp3 yang dimainkan sesuai dengan perubahan posisi slider... 
-        sliderProgres.valueProperty().addListener((Observable observable) -> {
-            if (sliderProgres.isValueChanging()) {
-                if (media != null) {
-                    double durasi = media.getMedia().getDuration().toMillis();
-                    durasi = durasi * (sliderProgres.getValue() / 100);
-                    media.seek(Duration.millis(durasi));
-                }
-            }
-        });
- */
