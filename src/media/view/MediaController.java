@@ -12,11 +12,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+ import java.lang.Object;
+import org.apache.commons.io.FileUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 import static javafx.application.ConditionalFeature.FXML;
 import javafx.beans.binding.Bindings;
@@ -27,6 +32,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
@@ -47,10 +53,14 @@ import media.model.MediaItem;
 public class MediaController implements Initializable {
 
     public MediaPlayer mediaPlayer;
+    // private ObservableList<MediaPlayer> playerList;
+    public  Media media;
+    public File mediaFile;
     private ObservableList<MediaItem> mediaList;
     private ObservableList<MediaItem> selectedList;
     private ObservableList<MediaItem> deletedList;
     private ObservableList<MediaItem> unsupportedList;
+    private String destinationPath = null;
     @FXML
     private Slider mediaSlider;
     @FXML
@@ -63,6 +73,8 @@ public class MediaController implements Initializable {
     private ListView<MediaItem> selectedListView;
     @FXML
     private ListView<MediaItem> deletedListView;
+    @FXML
+    private Label pathView;
 
     /**
      * Initializes the controller class.
@@ -93,6 +105,7 @@ public class MediaController implements Initializable {
         });
 
         mediaList = FXCollections.observableArrayList();
+        //playerList = FXCollections.observableArrayList();
         deletedList = FXCollections.observableArrayList();
         selectedList = FXCollections.observableArrayList();
         unsupportedList = FXCollections.observableArrayList();
@@ -162,12 +175,21 @@ public class MediaController implements Initializable {
         //MediaItem item = mediaListView.getSelectionModel().getSelectedItem();
         MediaItem item = mediaList.get(0);
         if (item != null) {
-            deletedList.add(0,item);
+            deletedList.add(0, item);
             mediaList.remove(item);
-
-            mediaView.getMediaPlayer().dispose();
-            Media media = new Media(new File(mediaList.get(0).getpath()).toURI().toString());
-            play(media);
+if (mediaPlayer != null) {
+mediaPlayer.stop();
+      
+            mediaPlayer.dispose();
+}  
+              mediaPlayer = null;
+              media= null;
+mediaFile=null;
+           // Media media = new Media(new File(mediaList.get(0).getpath()).toURI().toString());
+          mediaFile = new File(mediaList.get(0).getpath());
+           media = new Media(mediaFile.toURI().toString());
+         
+            play();
         }
 
     }
@@ -177,12 +199,21 @@ public class MediaController implements Initializable {
         MediaItem item = mediaList.get(0);
 
         if (item != null) {
-            selectedList.add(0,item);
+            selectedList.add(0, item);
             mediaList.remove(item);
+if (mediaPlayer != null) {
+mediaPlayer.stop();
 
-            mediaView.getMediaPlayer().dispose();
-            Media media = new Media(new File(mediaList.get(0).getpath()).toURI().toString());
-            play(media);
+            mediaPlayer.dispose();
+}
+              mediaPlayer = null;
+              media= null;
+          mediaFile=null;
+           // Media media = new Media(new File(mediaList.get(0).getpath()).toURI().toString());
+          mediaFile = new File(mediaList.get(0).getpath());
+           media = new Media(mediaFile.toURI().toString());
+     
+            play();
         }
     }
 
@@ -220,6 +251,8 @@ public class MediaController implements Initializable {
 
             File folder = directoryChooser.showDialog(null);
             Path = folder.getAbsolutePath();
+            destinationPath = Path;
+            pathView.setText(Path);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -244,8 +277,11 @@ public class MediaController implements Initializable {
                 });
 
             }
-            Media media = new Media(new File(mediaList.get(0).getpath()).toURI().toString());
-            play(media);
+            
+          mediaFile = new File(mediaList.get(0).getpath());
+           media = new Media(mediaFile.toURI().toString());
+     
+            play();
         }
     }
 
@@ -360,11 +396,17 @@ public class MediaController implements Initializable {
 
     }
 
-    private void play(Media media) {
-        mediaPlayer = new MediaPlayer(media);
+    private void play() {
+        if (mediaPlayer != null) {
 
+
+            mediaPlayer.dispose();
+}
+ 
+        mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setAutoPlay(true);
         mediaView.setMediaPlayer(mediaPlayer);
-        mediaPlayer.setOnReady(() -> {
+        /*mediaPlayer.setOnReady(() -> {
             //System.out.println("Duration: "+ mediaPlayer.getTotalDuration().toSeconds());
             mediaSlider.setMin(0.0);
             mediaSlider.setValue(0.0);
@@ -378,8 +420,149 @@ public class MediaController implements Initializable {
 
             });
 
+        });*/
+
+         
+    }
+
+    public void analys() {
+if (mediaPlayer != null) {
+mediaPlayer.stop();
+
+            mediaPlayer.dispose();
+}
+              mediaPlayer = null;
+              media= null;
+              mediaView=null;
+      File f = new File(destinationPath + "\\Deleted");
+        if (!f.exists()){
+            f.mkdir();
+       }
+        f = new File(destinationPath + "\\Selected");
+       if (!f.exists()){
+            f.mkdir();
+       }
+      
+        analysDeletedList();
+        analysSelectedList();
+
+    }
+
+    private void analysDeletedList() {
+        String desPath = destinationPath + "\\Deleted";
+        ObservableList<MediaItem> tempList;
+        tempList = FXCollections.observableArrayList();
+        tempList.addAll(deletedList);
+
+        tempList.forEach(item -> {
+            System.out.println(item.getname());
+
+            if (moveFile(item.getpath(), desPath)) {
+                deletedList.remove(item);
+            }
+
         });
 
-        mediaPlayer.play();
+    }
+
+    private void analysSelectedList() {
+        String desPath = destinationPath + "\\Selected";
+        ObservableList<MediaItem> tempList;
+        tempList = FXCollections.observableArrayList();
+        tempList.addAll(selectedList);
+
+        tempList.forEach(item -> {
+            System.out.println(item.getname());
+
+            if (moveFile(item.getpath(), desPath)) {
+                selectedList.remove(item);
+            }
+
+        });
+    }
+
+    public void analysUnsupportedList() {
+        File f = new File(destinationPath + "\\Unsupported");
+       if (!f.exists()){
+            f.mkdir();
+       }
+       
+        String desPath = destinationPath + "\\Unsupported";
+        ObservableList<MediaItem> tempList;
+        tempList = FXCollections.observableArrayList();
+        tempList.addAll(unsupportedList);
+
+        tempList.forEach(item -> {
+            System.out.println(item.getname());
+
+            if (moveFile(item.getpath(), desPath)) {
+                unsupportedList.remove(item);
+            }
+
+        });
+    }
+
+    private boolean moveFile(String path, String desPath) {
+        desPath = desPath + "\\";
+
+        File f = new File(path);
+        if (path.equals(desPath + f.getName())){
+            return true;
+        }
+         File fileTo = new File(desPath );
+        try {
+            
+            FileUtils.copyFileToDirectory(f,fileTo,true);
+            FileUtils.forceDelete(f);
+                    return true;
+           
+           /*  Path p = Files.copy(f.toPath(),fileTo.toPath() , REPLACE_EXISTING);
+           if (p != null){
+            
+            }else{
+                     return false;
+            }*/
+            /*if (f.renameTo(new File(desPath + f.getName()))) {
+            
+            return true;
+            } else {
+            return false;
+            }
+        */      } catch (IOException ex) {
+            try {
+                FileUtils.forceDeleteOnExit(f);
+                Logger.getLogger(MediaController.class.getName()).log(Level.SEVERE, null, ex); 
+              return  true;
+            } catch (IOException ex1) {
+                Logger.getLogger(MediaController.class.getName()).log(Level.SEVERE, null, ex1);
+             return false; 
+            }
+        }
+  
+    }
+    public void clearDeletedList(){
+        deletedList.clear();
+    }
+      public void clearSelectedList(){
+        selectedList.clear();
+    }
+        public void clearUnsupportedList(){
+        unsupportedList.clear();
+    }
+        public void clearMediaList(){
+        mediaList.clear();
     }
 }
+/*
+put in initialize.......
+ // Rubah posisi mp3 yang dimainkan sesuai dengan perubahan posisi slider... 
+        sliderProgres.valueProperty().addListener((Observable observable) -> {
+            if (sliderProgres.isValueChanging()) {
+                if (media != null) {
+                    double durasi = media.getMedia().getDuration().toMillis();
+                    durasi = durasi * (sliderProgres.getValue() / 100);
+                    media.seek(Duration.millis(durasi));
+                }
+            }
+        });
+*/

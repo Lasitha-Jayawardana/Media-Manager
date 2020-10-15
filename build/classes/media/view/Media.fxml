@@ -11,7 +11,7 @@
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1000.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="media.view.MediaController">
    <children>
       <MediaView fx:id="mediaView" fitHeight="400.0" fitWidth="600.0" layoutX="24.0" layoutY="24.0" />
-      <ListView fx:id="mediaListView" layoutX="824.0" layoutY="14.0" prefHeight="410.0" prefWidth="439.0" />
+      <ListView fx:id="mediaListView" layoutX="824.0" layoutY="52.0" prefHeight="372.0" prefWidth="439.0" />
       <ListView fx:id="selectedListView" layoutX="44.0" layoutY="516.0" prefHeight="444.0" prefWidth="419.0" />
       <ListView fx:id="deletedListView" layoutX="624.0" layoutY="521.0" prefHeight="428.0" prefWidth="400.0" />
       <Label layoutX="51.0" layoutY="479.0" text="Selected List" />
@@ -22,5 +22,12 @@
       <Slider fx:id="mediaSlider" layoutX="33.0" layoutY="415.0" prefHeight="0.0" prefWidth="600.0" />
       <ListView fx:id="unsupportedListView" layoutX="1069.0" layoutY="516.0" prefHeight="428.0" prefWidth="311.0" />
       <Label layoutX="1069.0" layoutY="479.0" text="Unsupported Media" />
+      <Button layoutX="824.0" layoutY="441.0" mnemonicParsing="false" onAction="#analys" text="Analysis" />
+      <Button layoutX="913.0" layoutY="441.0" mnemonicParsing="false" onAction="#analysUnsupportedList" text="Move Unsupported Media" />
+      <Label fx:id="pathView" layoutX="577.0" layoutY="4.0" prefHeight="21.0" prefWidth="716.0" />
+      <Button layoutX="228.0" layoutY="464.0" mnemonicParsing="false" onAction="#clearSelectedList" text="Clear List" />
+      <Button layoutX="729.0" layoutY="480.0" mnemonicParsing="false" onAction="#clearDeletedList" text="Clear List" />
+      <Button layoutX="1215.0" layoutY="474.0" mnemonicParsing="false" onAction="#clearUnsupportedList" text="Clear List" />
+      <Button layoutX="736.0" layoutY="223.0" mnemonicParsing="false" onAction="#clearMediaList" text="Clear List" />
    </children>
 </Pane>
