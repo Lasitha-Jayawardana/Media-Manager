@@ -9,7 +9,8 @@ This application provide interface to manage your Vedio and Audio files very eas
     - You can seek forward by using right arrow key and backward by left arrow key.
     - "0" key in num pad use to put media in to selected list and "." key in the num pad belong to 
       Deleted list. When one of that key pressed it will automatically play next song.
-    - After completing all songs use analyse button to move files to specific folder. Which are created as the sub folders of the Browsed path.
+    - After completing all songs use analyse button to move files to specific folder. 
+      Which are created as the sub folders of the Browsed path.
     
     
 **** If any of file did not delete after Analysing, all undeleted file will be deleted after application exit. *****
